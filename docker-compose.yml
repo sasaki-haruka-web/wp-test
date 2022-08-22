@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  db:
+    image: mariadb:10.1.41
+    ports:
+      - 3306:3306
+    env_file: ./.config/.mysql.env
+    volumes:
+      - hmh_data:/var/lib/mysql
+
+  wordpress:
+    build:
+      context: ./.config/
+      dockerfile: Wordpress
+    depends_on:
+      - db
+    ports:
+      - 8887:80
+    env_file: ./.config/.wordpress.env
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./.languages:/var/www/html/wp-content/languages
+      - ./.plugins:/var/www/html/wp-content/plugins
+      - ./hmh:/var/www/html/wp-content/themes/hmh
+
+  # mail:
+  #   image: schickling/mailcatcher
+  #   container_name: mail-box
+  #   ports:
+  #     - 1080:1080
+  #     - 1025:1025
+  #   depends_on:
+  #     - wordpress
+
+volumes:
+  hmh_data:
+    external: true
+  wordpress_data: {}

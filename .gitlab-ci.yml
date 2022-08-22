@@ -1,0 +1,27 @@
+image: node:alpine
+stages:
+  - deploy
+
+before_script:
+  - which ssh-agent || ( apk update && apk add openssh-client)
+  - which rsync || (apk add rsync)
+  - eval $(ssh-agent -s)
+  - echo "$JENKINS_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan -p $JENKINS_PORT -t rsa $JENKINS_HOST >> ~/.ssh/known_hosts
+# mainDeploy:
+#   stage: deploy
+#   script:
+#     - ssh $JENKINS_USER@$JENKINS_HOST -p $JENKINS_PORT < .deploy/main.sh
+#     - echo "Deploy finished."
+#   only:
+#     - main
+
+# developDeploy:
+#   stage: deploy
+#   script:
+#     - ssh $JENKINS_USER@$JENKINS_HOST -p $JENKINS_PORT < .deploy/develop.sh
+#     - echo "Deploy finished."
+#   only:
+#     - develop
